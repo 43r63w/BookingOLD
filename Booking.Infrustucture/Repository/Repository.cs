@@ -39,28 +39,20 @@ namespace Booking.Infrustucture.Repository
             return query.Any();
         }
 
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null/*, bool tracked = false*/)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null)
         {
             IQueryable<T> query = _set;
             if (filter != null)
             {
                 query = query.Where(filter);
             }
-            //if(tracked)
-            //{
-            //    query = _set;
-            //}
-            //else
-            //{
-            //    query = _set.AsNoTracking();
-            //}
-
+           
             return query.ToList();
         }
 
 
 
-        public T GetValue(Expression<Func<T, bool>>? filter = null/*,bool tracked = false*/)
+        public T GetValue(Expression<Func<T, bool>>? filter = null)
         {
             IQueryable<T> query = _set;
             if (filter != null)
@@ -68,14 +60,7 @@ namespace Booking.Infrustucture.Repository
                 query = query.Where(filter);
             }
 
-            //if (tracked)
-            //{
-            //    query = _set;
-            //}
-            //else
-            //{
-            //    query = _set.AsNoTracking();
-            //}
+          
 
             return query.FirstOrDefault();
         }

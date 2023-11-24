@@ -10,8 +10,8 @@ namespace Booking.Application.Interfaces
     public interface IRepository<T> where T : class
     {
         void Add(T entity); 
-        T GetValue(Expression<Func<T, bool>>? filter=null/*,bool tracked=false*/);
-        IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null/*, bool tracked = false*/);
+        T GetValue(Expression<Func<T, bool>>? filter=null);
+        IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null);
         bool Any(Expression<Func<T, bool>>? filter);
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entities);     
