@@ -12,11 +12,11 @@ function loadDataTable() {
             { "data": "villa.name", "width": "15%" },
             { "data": "specialDetails", "width": "15%" },
             {
-                data: 'id',
+                data: 'villa_Number',
                 "render": function (data) {
                     return `<div class="w-75 btn-group" role="group">
-                     <a href="/villanumber/upsert?id=${data}" class="btn btn-primary mx-2"> <i class="bi bi-pencil-square"></i> Edit</a>               
-                     <a onClick=Delete('/villanumber/delete/${data}') class="btn btn-danger mx-2"> <i class="bi bi-trash-fill"></i> Delete</a>
+                     <a href="/villanumber/edit?villa_Number=${data}" class="btn btn-primary mx-2"> <i class="bi bi-pencil-square"></i> Edit</a>
+                     <a onClick=Delete('/villanumber/delete?villa_Number=${data}') class="btn btn-danger mx-2"> <i class="bi bi-trash-fill"></i> Delete</a>
                     </div>`
                 },
                 "width": "25%"
