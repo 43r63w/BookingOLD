@@ -37,10 +37,15 @@ namespace Booking.Controllers
             if (ModelState.IsValid)
             {
                 if (villa.Id == 0)
+                {
                     _unitOfWork.Villa.Add(villa);
+                    _unitOfWork.Save();
+                }
                 else
+                {
                     _unitOfWork.Villa.Update(villa);
-
+                    _unitOfWork.Save();
+                }
                 if (villa.Image != null)
                 {
                     if (villa.ImageUrl != null)
@@ -83,6 +88,30 @@ namespace Booking.Controllers
             return Json(new { data = villaLists });
 
         }
+
+        [HttpDelete]
+        public IActionResult Delete(int id)
+        {
+            var fromDb = _unitOfWork.Villa.GetValue(u => u.Id == id);
+
+
+            string directoryPath = Path.Combine(_webHostEnvironment.WebRootPath + @"\\"+ @"images\villa\" + fromDb.Name);
+            string finalPath = Path.Combine(_webHostEnvironment.WebRootPath, fromDb.ImageUrl);
+
+            if (Directory.Exists(directoryPath))
+            {
+                System.IO.File.Delete(finalPath);
+
+            }
+            Directory.Delete(directoryPath);
+
+            _unitOfWork.Villa.Remove(fromDb);
+            _unitOfWork.Save();
+
+
+            return Json(new { success = true, message = "Villa's number has been deleted" });
+        }
+
         #endregion
 
 

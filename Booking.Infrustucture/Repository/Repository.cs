@@ -39,18 +39,28 @@ namespace Booking.Infrustucture.Repository
             return query.Any();
         }
 
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null/*, bool tracked = false*/)
         {
             IQueryable<T> query = _set;
             if (filter != null)
             {
                 query = query.Where(filter);
             }
+            //if(tracked)
+            //{
+            //    query = _set;
+            //}
+            //else
+            //{
+            //    query = _set.AsNoTracking();
+            //}
 
             return query.ToList();
         }
 
-        public T GetValue(Expression<Func<T, bool>>? filter = null)
+
+
+        public T GetValue(Expression<Func<T, bool>>? filter = null/*,bool tracked = false*/)
         {
             IQueryable<T> query = _set;
             if (filter != null)
@@ -58,8 +68,19 @@ namespace Booking.Infrustucture.Repository
                 query = query.Where(filter);
             }
 
+            //if (tracked)
+            //{
+            //    query = _set;
+            //}
+            //else
+            //{
+            //    query = _set.AsNoTracking();
+            //}
+
             return query.FirstOrDefault();
         }
+
+
 
         public void Remove(T entity)
         {
@@ -68,7 +89,7 @@ namespace Booking.Infrustucture.Repository
 
         public void RemoveRange(IEnumerable<T> entities)
         {
-           _context.Set<T>().RemoveRange(entities);
+            _context.Set<T>().RemoveRange(entities);
         }
 
     }
