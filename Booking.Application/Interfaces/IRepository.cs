@@ -14,6 +14,7 @@ namespace Booking.Application.Interfaces
         IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null);
         bool Any(Expression<Func<T, bool>>? filter);
         void Remove(T entity);
-        void RemoveRange(IEnumerable<T> entities);       
+        void RemoveRange(IEnumerable<T> entities);     
+       
     }
 }

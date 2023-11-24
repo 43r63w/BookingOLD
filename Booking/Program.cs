@@ -1,7 +1,20 @@
+using Booking.Application.Interfaces;
+using Booking.Infrustucture.Data;
+using Booking.Infrustucture.Data.DbInitializers;
+using Booking.Infrustucture.Repository;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.
+UseSqlServer(builder.Configuration.GetConnectionString("DefaultDbConnection")));
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IDbinitialize,DbInitialize>();
 
 var app = builder.Build();
 
@@ -17,11 +30,25 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+CreateDataBase();
 
 app.UseAuthorization();
+
+
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+
+void CreateDataBase()
+{
+    using(var services = app.Services.CreateScope())
+    {
+        var DbInitializer = services.ServiceProvider.GetRequiredService<IDbinitialize>();
+        
+        DbInitializer.Initialize();
+    }
+}
