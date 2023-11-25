@@ -9,12 +9,12 @@ namespace Booking.Application.Interfaces
 {
     public interface IRepository<T> where T : class
     {
-        void Add(T entity); 
-        T GetValue(Expression<Func<T, bool>>? filter=null);
-        IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null);
+        void Add(T entity);
+        T GetValue(Expression<Func<T, bool>>? filter = null, bool tracked = false, string? includeProperties = null);
+        IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, bool tracked = false, string? includeProperties = null);
         bool Any(Expression<Func<T, bool>>? filter);
         void Remove(T entity);
-        void RemoveRange(IEnumerable<T> entities);     
-       
+        void RemoveRange(IEnumerable<T> entities);
+
     }
 }

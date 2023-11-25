@@ -39,28 +39,61 @@ namespace Booking.Infrustucture.Repository
             return query.Any();
         }
 
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, bool tracked = false, string? includeProperties = null)
         {
             IQueryable<T> query = _set;
             if (filter != null)
             {
                 query = query.Where(filter);
             }
-           
+            if (tracked)
+            {
+                query = _set;
+            }
+            else
+            {
+                query.AsNoTracking();
+            }
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+              
+                foreach (var includeProp in includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp.Trim());
+                }
+            }
+
             return query.ToList();
         }
 
 
-
-        public T GetValue(Expression<Func<T, bool>>? filter = null)
+        public T GetValue(Expression<Func<T, bool>>? filter = null, bool tracked = false, string? includeProperties = null)
         {
             IQueryable<T> query = _set;
             if (filter != null)
             {
                 query = query.Where(filter);
             }
+            if (tracked)
+            {
+                query = _set;
+            }
+            else
+            {
+                query.AsNoTracking();
+            }
+            if (!string.IsNullOrEmpty(includeProperties))
+            {              
+                foreach (var includeProp in includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp.Trim());
+                }
+            }
 
-          
+
 
             return query.FirstOrDefault();
         }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,7 +18,7 @@ namespace Booking.Domain.Entities
         public int Id { get; set; }
 
         [Required]
-        public  string Name { get; set; }
+        public string Name { get; set; }
 
         public string? Description { get; set; }
 
@@ -36,6 +37,10 @@ namespace Booking.Domain.Entities
 
         public DateTime? UpdateDate { get; set; }
         public DateTime? CreateDate { get; set; }
+
+
+        [ValidateNever]
+        public IEnumerable<Amenity> VillaAmenities { get; set; }
 
 
     }
