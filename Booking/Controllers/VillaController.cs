@@ -77,7 +77,7 @@ namespace Booking.Controllers
                     return RedirectToAction(nameof(Index));
                 }
             }
-            return RedirectToAction(nameof(Upsert));
+            return RedirectToAction(nameof(Index));
         }
         #region APICALLS
         public IActionResult GetAll()

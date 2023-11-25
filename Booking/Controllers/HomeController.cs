@@ -16,7 +16,6 @@ namespace Booking.Controllers
             _logger = logger;
             _unitOfWork = unitOfWork;
         }
-
         public IActionResult Index()
         {
             HomeVM homeVM = new()
@@ -26,9 +25,6 @@ namespace Booking.Controllers
 
                 CheckInDate = DateOnly.FromDateTime(DateTime.Now)
             };
-
-
-
             return View(homeVM);
         }
 
