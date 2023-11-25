@@ -2,6 +2,7 @@ using Booking.Application.Interfaces;
 using Booking.Infrustucture.Data;
 using Booking.Infrustucture.Data.DbInitializers;
 using Booking.Infrustucture.Repository;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
@@ -13,8 +14,14 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.
 UseSqlServer(builder.Configuration.GetConnectionString("DefaultDbConnection")));
 
+builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+
+
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IDbinitialize,DbInitialize>();
+
+
 
 var app = builder.Build();
 
@@ -30,7 +37,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-CreateDataBase();
+
+//CreateDataBase();
 
 app.UseAuthorization();
 
@@ -43,12 +51,12 @@ app.MapControllerRoute(
 app.Run();
 
 
-void CreateDataBase()
-{
-    using(var services = app.Services.CreateScope())
-    {
-        var DbInitializer = services.ServiceProvider.GetRequiredService<IDbinitialize>();
+//void CreateDataBase()
+//{
+//    using(var services = app.Services.CreateScope())
+//    {
+//        var DbInitializer = services.ServiceProvider.GetRequiredService<IDbinitialize>();
         
-        DbInitializer.Initialize();
-    }
-}
+//        DbInitializer.Initialize();
+//    }
+//}
