@@ -1,4 +1,5 @@
 ﻿using Booking.Application.Interfaces;
+using Booking.Application.Services;
 using Booking.Domain.Entities;
 using Booking.Domain.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -30,16 +31,16 @@ namespace Booking.Controllers
         }
         public IActionResult Register()
         {
-            if (!_roleManager.RoleExistsAsync("Admin").GetAwaiter().GetResult())
+            if (!_roleManager.RoleExistsAsync(SD.Role_Admin).GetAwaiter().GetResult())
             {
-                _roleManager.CreateAsync(new IdentityRole("Admin")).Wait();
-                _roleManager.CreateAsync(new IdentityRole("Customer")).Wait();
+                _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin)).Wait();
+                _roleManager.CreateAsync(new IdentityRole(SD.Role_Customer)).Wait();
             }
 
 
             RegisterVM registerVM = new()
             {
-                rolesLists = _roleManager.Roles.ToList().Select(u => new SelectListItem
+                RoleLists = _roleManager.Roles.ToList().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()

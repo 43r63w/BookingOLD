@@ -35,14 +35,11 @@ namespace Booking.Domain.ViewModels
         public bool RememberMe { get; set; }
 
         public string? RedirectUrl { get; set; }
-
-        public string RoleId { get; set; }
-        [ForeignKey(nameof(RoleId))]
-        [ValidateNever]
-        public IdentityRole Role { get; set; }
+     
+        public string? Role { get; set; }
 
         [ValidateNever]
-        public IEnumerable<SelectListItem> rolesLists { get; set; }
+        public IEnumerable<SelectListItem> RoleLists { get; set; }
 
     }
 }
