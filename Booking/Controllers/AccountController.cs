@@ -31,11 +31,7 @@ namespace Booking.Controllers
         }
         public IActionResult Register()
         {
-            if (!_roleManager.RoleExistsAsync(SD.Role_Admin).GetAwaiter().GetResult())
-            {
-                _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin)).Wait();
-                _roleManager.CreateAsync(new IdentityRole(SD.Role_Customer)).Wait();
-            }
+           
             RegisterVM registerVM = new()
             {
                 RoleLists = _roleManager.Roles.ToList().Select(u => new SelectListItem
@@ -50,7 +46,7 @@ namespace Booking.Controllers
         }
 
         [HttpPost]
-        public IActionResult Register(RegisterVM registerVM)
+        public async Task<IActionResult> Register(RegisterVM registerVM)
         {
 
             if (ModelState.IsValid)
@@ -71,19 +67,18 @@ namespace Booking.Controllers
                 {
                     if (!string.IsNullOrEmpty(registerVM.Role))
                     {
-                        _userManager.AddToRoleAsync(user, registerVM.Role);
+                       await _userManager.AddToRoleAsync(user, registerVM.Role);
                     }
                     else
                     {
-                        _userManager.AddToRoleAsync(user, SD.Role_Customer);
+                      await  _userManager.AddToRoleAsync(user, SD.Role_Customer);                
                     }
-                    _signInManager.SignInAsync(user, isPersistent: false);
+                    await _signInManager.SignInAsync(user, isPersistent: false);
                     TempData["success"] = "Account succesfully created";
-                    return RedirectToAction("Index","Home");
+                    return RedirectToAction("Index", "Home");
                 }
 
             }
-
             registerVM.RoleLists = _roleManager.Roles.ToList().Select(u => new SelectListItem
             {
                 Text = u.Name,
@@ -94,17 +89,29 @@ namespace Booking.Controllers
             return View(registerVM);
 
         }
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginVM loginVM)
+        {
 
+            var result = await _signInManager.PasswordSignInAsync(loginVM.Email, loginVM.Password, loginVM.RememberMe, lockoutOnFailure: false);
 
-
-
-
-
-
-
-
-
-
+            if (result.Succeeded)
+            {
+                if (!string.IsNullOrEmpty(loginVM.RedirectUrl))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    return LocalRedirect(loginVM.RedirectUrl);
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "Invalid login attempt");
+            }
+            return View(loginVM);
+        }
         public IActionResult Login(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
