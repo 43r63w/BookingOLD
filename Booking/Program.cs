@@ -1,4 +1,5 @@
 using Booking.Application.Interfaces;
+using Booking.Domain.Entities;
 using Booking.Infrustucture.Data;
 using Booking.Infrustucture.Data.DbInitializers;
 using Booking.Infrustucture.Repository;
@@ -14,7 +15,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.
 UseSqlServer(builder.Configuration.GetConnectionString("DefaultDbConnection")));
 
-builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 
 
@@ -38,10 +39,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-//CreateDataBase();
+CreateDataBase();
 
 app.UseAuthorization();
-
 
 
 app.MapControllerRoute(
@@ -51,12 +51,12 @@ app.MapControllerRoute(
 app.Run();
 
 
-//void CreateDataBase()
-//{
-//    using(var services = app.Services.CreateScope())
-//    {
-//        var DbInitializer = services.ServiceProvider.GetRequiredService<IDbinitialize>();
-        
-//        DbInitializer.Initialize();
-//    }
-//}
+void CreateDataBase()
+{
+    using (var services = app.Services.CreateScope())
+    {
+        var DbInitializer = services.ServiceProvider.GetRequiredService<IDbinitialize>();
+
+        DbInitializer.Initialize();
+    }
+}
