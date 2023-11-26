@@ -1,4 +1,6 @@
 ﻿using Booking.Application.Services;
+using Booking.Domain.Entities;
+using Booking.Domain.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -14,11 +16,13 @@ namespace Booking.Infrustucture.Data.DbInitializers
 
         private readonly ApplicationDbContext _context;
         private readonly RoleManager<IdentityRole> _roleManager;
-
-        public DbInitialize(ApplicationDbContext context, RoleManager<IdentityRole> roleManager)
+        public DbInitialize(ApplicationDbContext context,
+            RoleManager<IdentityRole> roleManager
+       )
         {
             _context = context;
             _roleManager = roleManager;
+
         }
 
         public void Initialize()

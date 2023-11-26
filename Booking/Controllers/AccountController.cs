@@ -25,79 +25,85 @@ namespace Booking.Controllers
             _signInManager = signInManager;
             _roleManager = roleManager;
         }
-        public IActionResult GetAll()
+        public IActionResult Register(string returnUrl = null)
         {
-            return View();
-        }
-        public IActionResult Register()
-        {
-           
+            returnUrl ??= Url.Content("~/");
+
             RegisterVM registerVM = new()
             {
-                RoleLists = _roleManager.Roles.ToList().Select(u => new SelectListItem
+                RoleLists = _roleManager.Roles.Select(x => new SelectListItem
                 {
-                    Text = u.Name,
-                    Value = u.Id.ToString()
+                    Text = x.Name,
+                    Value = x.Name
                 }),
-
-                RedirectUrl = Url.Content("~/")
+                RedirectUrl = returnUrl
             };
+
             return View(registerVM);
         }
-
         [HttpPost]
         public async Task<IActionResult> Register(RegisterVM registerVM)
         {
-
             if (ModelState.IsValid)
             {
                 ApplicationUser user = new()
                 {
                     Name = registerVM.Name,
-                    PhoneNumber = registerVM.PhoneNumber,
                     Email = registerVM.Email,
+                    PhoneNumber = registerVM.PhoneNumber,
                     NormalizedEmail = registerVM.Email.ToUpper(),
                     EmailConfirmed = true,
                     UserName = registerVM.Email,
-                    CreatedAccount = DateTime.Now,
+                    CreatedAccount = DateTime.Now
                 };
 
-                var result = _userManager.CreateAsync(user, registerVM.Password).GetAwaiter().GetResult();
+                var result = await _userManager.CreateAsync(user, registerVM.Password);
+
                 if (result.Succeeded)
                 {
                     if (!string.IsNullOrEmpty(registerVM.Role))
                     {
-                       await _userManager.AddToRoleAsync(user, registerVM.Role);
+
+                        await _userManager.AddToRoleAsync(user, registerVM.Role);
+
                     }
                     else
                     {
-                      await  _userManager.AddToRoleAsync(user, SD.Role_Customer);                
+                        await _userManager.AddToRoleAsync(user, SD.Role_Customer);
                     }
+
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    TempData["success"] = "Account succesfully created";
-                    return RedirectToAction("Index", "Home");
+                    if (string.IsNullOrEmpty(registerVM.RedirectUrl))
+                    {
+                        TempData["success"] = "Account successfully created";
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        return LocalRedirect(registerVM.RedirectUrl);
+                    }
                 }
 
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
             }
-            registerVM.RoleLists = _roleManager.Roles.ToList().Select(u => new SelectListItem
+            registerVM.RoleLists = _roleManager.Roles.Select(x => new SelectListItem
             {
-                Text = u.Name,
-                Value = u.Id.ToString()
+                Text = x.Name,
+                Value = x.Name
             });
-
-
             return View(registerVM);
-
         }
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM loginVM)
         {
-
             var result = await _signInManager.PasswordSignInAsync(loginVM.Email, loginVM.Password, loginVM.RememberMe, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
-                if (!string.IsNullOrEmpty(loginVM.RedirectUrl))
+                if (string.IsNullOrEmpty(loginVM.RedirectUrl))
                 {
                     return RedirectToAction("Index", "Home");
                 }
@@ -123,6 +129,12 @@ namespace Booking.Controllers
             };
 
             return View(loginVM);
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
 
 

@@ -39,7 +39,7 @@ namespace Booking.Domain.ViewModels
         public string? Role { get; set; }
 
         [ValidateNever]
-        public IEnumerable<SelectListItem> RoleLists { get; set; }
+        public IEnumerable<SelectListItem>? RoleLists { get; set; }
 
     }
 }
