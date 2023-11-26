@@ -1,9 +1,11 @@
 using Booking.Application.Interfaces;
+using Booking.Application.Services;
 using Booking.Domain.Entities;
 using Booking.Infrustucture.Data;
 using Booking.Infrustucture.Data.DbInitializers;
 using Booking.Infrustucture.Repository;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
@@ -21,6 +23,7 @@ builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkS
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IDbinitialize,DbInitialize>();
+builder.Services.AddScoped<IEmailSender,EmailSender>();
 
 
 
