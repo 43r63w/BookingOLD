@@ -2,6 +2,7 @@
 using Booking.Application.Services;
 using Booking.Domain.Entities;
 using Booking.Domain.ViewModels;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -129,6 +130,10 @@ namespace Booking.Controllers
             };
 
             return View(loginVM);
+        }
+        public IActionResult AccessDenied()
+        {
+            return View();  
         }
 
         public async Task<IActionResult> Logout()
