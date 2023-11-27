@@ -31,7 +31,7 @@ namespace Booking.Controllers
         [HttpPost]
         public IActionResult Index(HomeVM homeVM)
         {
-          homeVM.VillaList = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenities");
+            homeVM.VillaList = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenities");
             foreach (var villa in homeVM.VillaList)
             {
                 if (villa.Id % 2 == 0)
@@ -39,9 +39,35 @@ namespace Booking.Controllers
                     villa.IsAvalibel = false;
                 }
             }
-               
+
+            
             return View(homeVM);
         }
+
+        public IActionResult GetVillasByDate(int nights, DateOnly checkInDate)
+        {
+            Thread.Sleep(1000);
+
+            var villaList = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenities").ToList();
+            foreach (var villa in villaList)
+            {
+                if (villa.Id % 2 == 0)
+                {
+                    villa.IsAvalibel = false;
+                }
+            }
+            HomeVM homeVm = new()
+            {
+                VillaList = villaList,
+                CheckInDate = checkInDate,
+                Nights = nights
+
+            };
+
+            return PartialView("_VillasList",homeVm);
+
+        }
+
 
         public IActionResult Privacy()
         {
