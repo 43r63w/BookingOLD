@@ -30,7 +30,10 @@
                                 {
                                     @if (item.IsAvalibel)
                                     {
-                                        <a class="btn btn-success form-control btn-block">
+                                        <a asp-controller="BookingVilla" asp-action="FinalizeBooking" class="btn btn-success form-control btn-block"
+                                           asp-route-villaId="@item.Id" 
+                                           asp-route-checkInDate="@Model.CheckInDate" 
+                                           asp-route-nights="@Model.Nights">
                                             Book
                                         </a>
                                     }

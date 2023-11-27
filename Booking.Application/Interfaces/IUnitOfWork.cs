@@ -10,8 +10,12 @@ namespace Booking.Application.Interfaces
     {
         public IVillaRepository Villa { get; }
         public IVillaNumberRepository VillaNumber { get; }
-
         public IAmenityRepository Amenity { get; }
+
+        public IApplicationUserRepository User { get; }
+
+        public IBookingVillaRepository BookingVilla { get; }
+
 
         void Save();
     }

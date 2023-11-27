@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Booking.Domain.Entities
 {
-    public class Booking
+    public class BookingVilla
     {
         [Key]
         public int Id { get; set; }
@@ -41,9 +41,9 @@ namespace Booking.Domain.Entities
         [Required]
         public DateTime BookingDate { get; set; }
         [Required]
-        public DateTime CheckInDate { get; set; }
+        public DateOnly CheckInDate { get; set; }
         [Required]
-        public DateTime CheckOutDate { get; set; }
+        public DateOnly CheckOutDate { get; set; }
 
         public bool IsPaymentSuccessful { get; set; }
 
