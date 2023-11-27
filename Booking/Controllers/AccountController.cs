@@ -29,7 +29,6 @@ namespace Booking.Controllers
         public IActionResult Register(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-
             RegisterVM registerVM = new()
             {
                 RoleLists = _roleManager.Roles.Select(x => new SelectListItem
@@ -37,9 +36,9 @@ namespace Booking.Controllers
                     Text = x.Name,
                     Value = x.Name
                 }),
+
                 RedirectUrl = returnUrl
             };
-
             return View(registerVM);
         }
         [HttpPost]

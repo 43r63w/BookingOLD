@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Booking.Controllers
 {
-    [Authorize]
+  
     public class VillaController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

@@ -13,6 +13,7 @@
             <div class="row pt-3">
                 <div class="col-md-12">
                     <form class="row" method="post">
+                        <input asp-for="RedirectUrl" hidden />
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="form-floating mb-3 col-md-12">
                             <input class="form-control" asp-for=Email aria-required="true" />
@@ -45,7 +46,7 @@
                             </select>
                         </div>
                         <div class="col-12">
-                            <button type="submit" class="w-100 btn btn-lg btn-outline-success">Register</button>
+                            <button type="submit" class="w-100 btn btn-lg btn-outline-success" asp-route-returnUrl="RedirectUrl">Register</button>
                         </div>
                     </form>
                 </div>

@@ -17,18 +17,17 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.
 UseSqlServer(builder.Configuration.GetConnectionString("DefaultDbConnection")));
 
-builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 
 
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IDbinitialize,DbInitialize>();
-builder.Services.AddScoped<IEmailSender,EmailSender>();
+builder.Services.AddScoped<IDbinitialize, DbInitialize>();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = false;
 });
 
 

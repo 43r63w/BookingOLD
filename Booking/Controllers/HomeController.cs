@@ -28,6 +28,21 @@ namespace Booking.Controllers
             return View(homeVM);
         }
 
+        [HttpPost]
+        public IActionResult Index(HomeVM homeVM)
+        {
+          homeVM.VillaList = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenities");
+            foreach (var villa in homeVM.VillaList)
+            {
+                if (villa.Id % 2 == 0)
+                {
+                    villa.IsAvalibel = false;
+                }
+            }
+               
+            return View(homeVM);
+        }
+
         public IActionResult Privacy()
         {
             return View();
