@@ -7,8 +7,11 @@ using System.Threading.Tasks;
 
 namespace Booking.Application.Interfaces
 {
-    public interface IBookingVillaRepository:IRepository<BookingVilla>
+    public interface IBookingVillaRepository : IRepository<BookingVilla>
     {
         void Update(BookingVilla obj);
+
+        void UpdateStatus(int bookingId, string bookingStatus);
+        void UpdatePaymentStatus(int bookingId, string sessionId, string paymentIntentId);
     }
 }
