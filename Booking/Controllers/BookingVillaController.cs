@@ -4,6 +4,7 @@ using Booking.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Stripe.Checkout;
 using System.Security.Claims;
 
 namespace Booking.Controllers
@@ -12,10 +13,13 @@ namespace Booking.Controllers
     public class BookingVillaController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<BookingVillaController> _logger;
 
-        public BookingVillaController(IUnitOfWork unitOfWork)
+        public BookingVillaController(IUnitOfWork unitOfWork,
+            ILogger<BookingVillaController> logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public IActionResult FinalizeBooking(int villaId, int nights, DateOnly checkInDate)
@@ -56,11 +60,73 @@ namespace Booking.Controllers
             _unitOfWork.BookingVilla.Add(bookingVilla);
             _unitOfWork.Save();
 
-            return RedirectToAction(nameof(BookingConformation), new { bookingId = bookingVilla.Id });
+
+            var domain = "https://localhost:7040/";
+            var options = new SessionCreateOptions
+            {
+                LineItems = new List<SessionLineItemOptions>(),
+                Mode = "payment",
+                SuccessUrl = domain + $"bookingvilla/BookingConformation?bookingId={bookingVilla.Id}",
+                CancelUrl = domain + $"bookingvilla/FinalizeBooking?villaId={villaDetail.Id}&nights={bookingVilla.Nights}&checkInDate={bookingVilla.CheckInDate}",
+            };
+
+
+
+            options.LineItems.Add(new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
+                {
+                    UnitAmount = (long)(bookingVilla.Price * 100),
+                    Currency = "usd",
+
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    {
+                        Name = villaDetail.Name,
+
+                    }
+                },
+
+                Quantity = 1
+            });
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+
+            _unitOfWork.BookingVilla.UpdatePaymentStatus(bookingVilla.Id, session.Id, session.PaymentIntentId);
+            _unitOfWork.Save();
+
+            Response.Headers.Add("Location", session.Url);
+            return new StatusCodeResult(303);
+
         }
 
         public IActionResult BookingConformation(int bookingId)
         {
+            try
+            {
+                var bookingFromDb = _unitOfWork.BookingVilla.GetValue(u => u.Id == bookingId, includeProperties: "User,Villa");
+
+                if (bookingFromDb.Status == SD.StatusPending)
+                {
+                    var service = new SessionService();
+                    Session session = service.Get(bookingFromDb.StripeSessionId);
+
+                    if (session.PaymentStatus == "paid")
+                    {
+                        _unitOfWork.BookingVilla.UpdateStatus(bookingFromDb.Id, SD.StatusApproved);
+                        _unitOfWork.BookingVilla.UpdatePaymentStatus(bookingId, session.Id, session.PaymentIntentId);
+                        _unitOfWork.Save();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"{ex.Message}");
+                _logger.LogInformation($"{ex.StackTrace}");
+            }
+
+
             return View(bookingId);
         }
     }

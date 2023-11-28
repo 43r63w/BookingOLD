@@ -47,7 +47,7 @@ namespace Booking.Domain.Entities
 
         public bool IsPaymentSuccessful { get; set; }
 
-        public DateTime PaymentDate { get; set; }   
+        public DateTime PaymentDate { get; set; }
 
 
         public string? StripeSessionId { get; set; }
