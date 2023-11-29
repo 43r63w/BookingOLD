@@ -22,6 +22,8 @@ namespace Booking.Application.Services
         public const string StatusCancelled = "Cancelled";
         public const string StatusRefunded = "Refunded";
 
+        public const string All = "All";
+
 
         public static int VillaRoomsAvailable_Count(int villadId, List<VillaNumber> villaNumbersList,
             DateOnly checkInDate, int nights, List<BookingVilla> bookingVillas)

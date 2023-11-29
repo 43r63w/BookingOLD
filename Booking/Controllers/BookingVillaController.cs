@@ -55,7 +55,7 @@ namespace Booking.Controllers
         {
             var villaDetail = _unitOfWork.Villa.GetValue(u => u.Id == bookingVilla.VillaId);
             var villaNumberList = _unitOfWork.VillaNumber.GetAll().ToList();
-            var bookingList = _unitOfWork.BookingVilla.GetAll(u=>u.Status==SD.StatusApproved|| u.Status==SD.StatusCheckedIn).ToList();
+            var bookingList = _unitOfWork.BookingVilla.GetAll(u => u.Status == SD.StatusApproved || u.Status == SD.StatusCheckedIn).ToList();
 
             bookingVilla.Price = villaDetail.Price * bookingVilla.Nights;
 
@@ -267,7 +267,17 @@ namespace Booking.Controllers
 
             if (!string.IsNullOrEmpty(status))
             {
-                bookingVillas = bookingVillas.Where(u => u.Status.ToLower().Equals(status.ToLower()));
+                if (status == SD.All)
+                {
+                    bookingVillas = _unitOfWork.BookingVilla.GetAll();
+                }
+                else
+                {
+
+                    bookingVillas = bookingVillas.Where(u => u.Status.ToLower().Equals(status.ToLower()));
+                }
+
+
             }
 
             return Json(new { data = bookingVillas });

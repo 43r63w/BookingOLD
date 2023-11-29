@@ -9,7 +9,7 @@
     var checkedIn = "";
     var completed = "";
     var cancelled = "";
-
+    var all = "";
 
     switch (status)
     {
@@ -28,17 +28,18 @@
         case SD.StatusCancelled:
             cancelled = "text-white bg-success";
             break;
+        case SD.All:
+            all = "text-white bg-success";
+            break;
         default:
+
             break;
     }
 
 }
 
-
-
-
 ﻿
-<div class="card shadow border-0 my-5 m-5 pb-5">
+<div class="w-100 card shadow border-0 my-5 m-5 pb-5">
     <div class="card-header bg-success  ml-0 py-3">
         <div class="row">
             <div class="col-12 text-center">
@@ -75,6 +76,9 @@
                 </a>
                 <a style="text-decoration:none;" asp-controller="BookingVilla" asp-action="Index" asp-route-status="@SD.StatusCheckedIn">
                 <li class="list-group-item @checkedIn">@SD.StatusCheckedIn</li>
+                </a>
+                <a style="text-decoration:none;" asp-controller="BookingVilla" asp-action="Index" asp-route-status="@SD.All">
+                <li class="list-group-item @all">@SD.All</li>
                 </a>
             </ul>
         </div>
