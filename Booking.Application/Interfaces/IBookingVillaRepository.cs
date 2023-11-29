@@ -11,7 +11,7 @@ namespace Booking.Application.Interfaces
     {
         void Update(BookingVilla obj);
 
-        void UpdateStatus(int bookingId, string bookingStatus);
+        void UpdateStatus(int bookingId, string bookingStatus,int villaNumber=0);
         void UpdatePaymentStatus(int bookingId, string sessionId, string paymentIntentId);
     }
 }

@@ -27,6 +27,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IDbinitialize, DbInitialize>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 
+
+
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequiredLength = 6;

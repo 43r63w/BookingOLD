@@ -1,10 +1,13 @@
 ﻿using Booking.Application.Interfaces;
 using Booking.Application.Services;
 using Booking.Domain.Entities;
+using Booking.Domain.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Stripe.Checkout;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 
 namespace Booking.Controllers
@@ -51,12 +54,30 @@ namespace Booking.Controllers
         public IActionResult FinalizeBooking(BookingVilla bookingVilla)
         {
             var villaDetail = _unitOfWork.Villa.GetValue(u => u.Id == bookingVilla.VillaId);
+            var villaNumberList = _unitOfWork.VillaNumber.GetAll().ToList();
+            var bookingList = _unitOfWork.BookingVilla.GetAll(u=>u.Status==SD.StatusApproved|| u.Status==SD.StatusCheckedIn).ToList();
 
             bookingVilla.Price = villaDetail.Price * bookingVilla.Nights;
 
             bookingVilla.Status = SD.StatusPending;
             bookingVilla.BookingDate = DateTime.Now;
 
+
+            int roomAvialabel = SD.VillaRoomsAvailable_Count(villaDetail.Id, villaNumberList, bookingVilla.CheckInDate, bookingVilla.Nights, bookingList);
+
+            if (roomAvialabel == 0)
+            {
+                TempData["warning"] = "Rooms has been sold out";
+
+                return RedirectToAction(nameof(FinalizeBooking), new
+                {
+                    villaId = bookingVilla.Id,
+                    checkInDate = bookingVilla.CheckInDate,
+                    nights = bookingVilla.Nights,
+                });
+
+
+            }
             _unitOfWork.BookingVilla.Add(bookingVilla);
             _unitOfWork.Save();
 
@@ -129,5 +150,132 @@ namespace Booking.Controllers
 
             return View(bookingId);
         }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult Detail(int id)
+        {
+
+            BookingVillaVM bookingVillaVM = new()
+            {
+                BookingVilla = _unitOfWork.BookingVilla.GetValue(U => U.Id == id, includeProperties: "User,Villa"),
+            };
+
+            bookingVillaVM.Amenities = _unitOfWork.Amenity.GetAll(u => u.VillaId == bookingVillaVM.BookingVilla.Villa.Id);
+
+            if (bookingVillaVM.BookingVilla.VillaNumber == 0 && bookingVillaVM.BookingVilla.Status == SD.StatusApproved)
+            {
+                var avialableVillaNumber = AssignAvialableVillaNumberByVilla(bookingVillaVM.BookingVilla.VillaId);
+
+
+                bookingVillaVM.BookingVilla.VillaNumbers = _unitOfWork.VillaNumber.
+                    GetAll(u => u.VillaId == bookingVillaVM.BookingVilla.VillaId && avialableVillaNumber.Any(x => x == u.Villa_Number)).ToList();
+            }
+
+            return View(bookingVillaVM);
+        }
+
+
+        public IActionResult CompleteBooking()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin)]
+        public IActionResult CheckIn(BookingVillaVM bookingVillaVM)
+        {
+
+            _unitOfWork.BookingVilla.UpdateStatus(bookingVillaVM.BookingVilla.Id, SD.StatusCheckedIn, bookingVillaVM.BookingVilla.VillaNumber);
+            _unitOfWork.Save();
+
+
+            TempData["success"] = "Booking updated";
+            return RedirectToAction(nameof(Detail), new { id = bookingVillaVM.BookingVilla.Id });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin)]
+        public IActionResult CheckoOut(BookingVillaVM bookingVillaVM)
+        {
+
+            _unitOfWork.BookingVilla.UpdateStatus(bookingVillaVM.BookingVilla.Id, SD.StatusCompleted, bookingVillaVM.BookingVilla.VillaNumber);
+            _unitOfWork.Save();
+
+
+            TempData["success"] = "Booking completed";
+            return RedirectToAction(nameof(Detail), new { id = bookingVillaVM.BookingVilla.Id });
+        }
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin)]
+        public IActionResult CancelBooking(BookingVillaVM bookingVillaVM)
+        {
+
+            _unitOfWork.BookingVilla.UpdateStatus(bookingVillaVM.BookingVilla.Id, SD.StatusCancelled);
+            _unitOfWork.Save();
+
+            var service = new SessionService();
+            //Session session = service.Create();
+
+
+
+            TempData["success"] = "Booking cancelled";
+            return RedirectToAction(nameof(Detail), new { id = bookingVillaVM.BookingVilla.Id });
+        }
+
+
+
+        private List<int> AssignAvialableVillaNumberByVilla(int villadId)
+        {
+            List<int> availableVillaNumber = new();
+
+
+            var villaNumbers = _unitOfWork.VillaNumber.GetAll(u => u.VillaId == villadId);
+
+            var checkedVilla = _unitOfWork.BookingVilla.GetAll(u => u.VillaId == villadId && u.Status == SD.StatusCheckedIn).Select(u => u.VillaNumber);
+
+            foreach (var villaNumber in villaNumbers)
+            {
+                if (!checkedVilla.Contains(villaNumber.Villa_Number))
+                {
+                    availableVillaNumber.Add(villaNumber.Villa_Number);
+                }
+            }
+
+            return availableVillaNumber;
+        }
+
+        #region APICALLS
+        public IActionResult GetAll(string status)
+        {
+            IEnumerable<BookingVilla> bookingVillas;
+
+            if (User.IsInRole(SD.Role_Admin))
+            {
+                bookingVillas = _unitOfWork.BookingVilla.GetAll(includeProperties: "Villa,User").ToList();
+            }
+            else
+            {
+                var claim = (ClaimsIdentity)User.Identity;
+                var userId = claim.FindFirst(ClaimTypes.NameIdentifier).Value;
+                bookingVillas = _unitOfWork.BookingVilla.GetAll(u => u.UserId == userId, includeProperties: "Villa,User");
+
+            }
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                bookingVillas = bookingVillas.Where(u => u.Status.ToLower().Equals(status.ToLower()));
+            }
+
+            return Json(new { data = bookingVillas });
+        }
+        #endregion
+
+
+
+
     }
 }

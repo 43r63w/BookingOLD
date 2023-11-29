@@ -23,7 +23,7 @@ namespace Booking.Infrustucture.Repository
         {
             _context.Bookings.Update(obj);
         }
-        public void UpdateStatus(int bookingId, string bookingStatus)
+        public void UpdateStatus(int bookingId, string bookingStatus,int villaNumber=0)
         {
             var bookingFromDb = _context.Bookings.FirstOrDefault(u => u.Id == bookingId);
 
@@ -32,6 +32,7 @@ namespace Booking.Infrustucture.Repository
                 bookingFromDb.Status = bookingStatus;
                 if (bookingStatus == SD.StatusCheckedIn)
                 {
+                    bookingFromDb.VillaNumber = villaNumber;
                     bookingFromDb.ActualCheckInDate = DateTime.Now;
                 }
                 if (bookingStatus == SD.StatusCompleted)

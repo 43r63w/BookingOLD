@@ -1,8 +1,11 @@
+
 using Booking.Application.Interfaces;
+using Booking.Application.Services;
 using Booking.Domain.ViewModels;
 using Booking.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Booking.Controllers
 {
@@ -28,18 +31,22 @@ namespace Booking.Controllers
             return View(homeVM);
         }
 
-        [HttpPost]    
+        [HttpPost]
         public IActionResult GetVillasByDate(int nights, DateOnly checkInDate)
         {
             Thread.Sleep(1000);
 
             var villaList = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenities").ToList();
+            var villaNumberList = _unitOfWork.VillaNumber.GetAll().ToList();
+            var bookedVillas = _unitOfWork.BookingVilla.GetAll(u => u.Status == SD.StatusApproved || u.Status == SD.StatusCheckedIn).ToList();
+
+
             foreach (var villa in villaList)
             {
-                if (villa.Id % 2 == 0)
-                {
-                    villa.IsAvalibel = false;
-                }
+                var roomsAvialabel = SD.VillaRoomsAvailable_Count
+               (villa.Id, villaNumberList, checkInDate, nights, bookedVillas);
+
+                villa.IsAvalibel = roomsAvialabel > 0 ? true : false;
             }
             HomeVM homeVm = new()
             {
@@ -49,7 +56,7 @@ namespace Booking.Controllers
 
             };
 
-            return PartialView("_VillasList",homeVm);
+            return PartialView("_VillasList", homeVm);
 
         }
 

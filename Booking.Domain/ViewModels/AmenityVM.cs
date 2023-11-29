@@ -13,6 +13,6 @@ namespace Booking.Domain.ViewModels
     {
         public Amenity? Amenity { get; set; }
         [ValidateNever]
-        public IEnumerable<SelectListItem> villaLists { get; set; }
+        public IEnumerable<SelectListItem> VillaLists { get; set; }
     }
 }

@@ -13,16 +13,20 @@ namespace Booking.Controllers
     public class AmenityController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<AmenityController> _logger;    
 
-        public AmenityController(IUnitOfWork unitOfWork)
+        public AmenityController(IUnitOfWork unitOfWork, 
+            ILogger<AmenityController> logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public IActionResult Index()
         {
+            IEnumerable<Amenity> amenitiesList = _unitOfWork.Amenity.GetAll(includeProperties: "Villa");
 
-            return View();
+            return View(amenitiesList);
         }
 
 
@@ -30,7 +34,7 @@ namespace Booking.Controllers
         {
             AmenityVM amenityVM = new()
             {
-                villaLists = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+                VillaLists = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
@@ -54,7 +58,7 @@ namespace Booking.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            amenityVM.villaLists = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+            amenityVM.VillaLists = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
             {
                 Text = u.Name,
                 Value = u.Id.ToString()
@@ -63,20 +67,18 @@ namespace Booking.Controllers
             return View(amenityVM);
         }
 
-        public IActionResult Edit(int id)
+        public IActionResult Edit(int amenityId)
         {
             AmenityVM amenityVM = new()
             {
-                villaLists = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
+                VillaLists = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString()
                 }),
-                Amenity = _unitOfWork.Amenity.GetValue(u => u.Id == id)
+                Amenity = _unitOfWork.Amenity.GetValue(u => u.Id == amenityId)
             };
-
             return View(amenityVM);
-
         }
 
         [HttpPost]
@@ -93,33 +95,15 @@ namespace Booking.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
-        #region APICALLS
-        public IActionResult GetAll()
+        public IActionResult Delete(int amenityId)
         {
-            IEnumerable<SelectListItem> villas = _unitOfWork.Villa.GetAll().Select(u => new SelectListItem
-            {
-                Text = u.Name,
-                Value = u.Id.ToString(),
-            });
-            IEnumerable<Amenity> amenitiesList = _unitOfWork.Amenity.GetAll().ToList();
-            return Json(new { data = amenitiesList });
-        }
-        [HttpDelete]
-        public IActionResult Delete(int id)
-        {
-            var fromDb = _unitOfWork.Amenity.GetValue(u => u.Id == id);
+            var fromDb = _unitOfWork.Amenity.GetValue(u => u.Id == amenityId);
             _unitOfWork.Amenity.Remove(fromDb);
             _unitOfWork.Save();
 
-            return Json(new { success = true, message = "Amenity delete" });
-
+            TempData["success"] = "Amenity deleted";
+            return RedirectToAction(nameof(Index));
         }
-
-        #endregion
-
-
-
 
 
 
